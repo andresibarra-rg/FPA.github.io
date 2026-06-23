@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Rindegastos · Salaries (Demo)</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box} body{margin:0;font-family:'Nunito Sans','Segoe UI',system-ui,Arial,sans-serif;background:#F6F9FE;color:#0C2340}
+.gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.box{background:#fff;border:1px solid #CFE0F2;border-radius:16px;max-width:380px;width:100%;padding:30px 28px;box-shadow:0 10px 30px rgba(2,39,89,.10);text-align:center}
+.lock{width:46px;height:46px;border-radius:50%;background:#022759;color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px}
+h1{font-size:18px;margin:0 0 4px;color:#022759}
+p{font-size:13px;color:#5B7494;margin:0 0 18px}
+input{width:100%;font-family:inherit;font-size:15px;padding:11px 12px;border:1.5px solid #CFE0F2;border-radius:9px;margin-bottom:10px}
+input:focus{outline:none;border-color:#2E86C1}
+button{width:100%;font-family:inherit;font-size:14px;font-weight:800;color:#fff;background:#022759;border:none;border-radius:9px;padding:12px;cursor:pointer}
+button:hover{background:#0a3b7a}
+.err{color:#D9534F;font-size:12.5px;font-weight:700;min-height:16px;margin-top:10px}
+.foot{font-size:11px;color:#8A97A8;margin-top:16px}
+</style></head>
+<body>
+<div class="gate" id="gate">
+  <div class="box">
+    <div class="lock">&#128274;</div>
+    <h1>Rindegastos · Salaries (Demo)</h1>
+    <p>This page is encrypted. Enter the password to view it.</p>
+    <input id="pw" type="password" placeholder="Password" autofocus
+      onkeydown="if(event.key==='Enter')go()"/>
+    <button onclick="go()">Unlock</button>
+    <div class="err" id="err"></div>
+    <div class="foot">Rindegastos · Internal · AES-256 encrypted</div>
+  </div>
+</div>
+<script>
+const P = {"salt": "eS8HhfhWTbflh5tDkGHEcQ==", "iv": "0MyrM2IyTBmdXdcw", "ct": "EJM2RnXepYVPMxk+M0KHmpzZ32jJq8lMRLE5pUCaKG9UMZ9QxJdvbPJDABtcMAxRUXubl8Lz9HL9JcS2+wpe7sbw0I/xR5BIC3sAAOl+GynGwyG+P7QDqRrRYDmg6Era97QNXRWBtIO6G3O5Aqy+AGLxU8r8eHM4Y6yiTy9Irx8bT3/7gAi+Q2N72Epj8FBsh5rR6UVBrzq6JbA3v08GZpkmCfRLQpIoncEB9r61zhbAB/8taDNclRVTuE+IGAlxW972dj+LcKiP95opG+w3ITn8ZWMmcQzyZkT1yeLtnax/7ZCC2DjDIsX1fQb4uCgNIq3NJeU6H8ZvMNy0+DTAUnBYZ9Xs+q7fuJVhmDjzrYPyewj2ZOwt+xTxpgwcabF1FIfpPKvhfZzlPepigUQ1pGNlOZeJVekCI7VzIN4aKhxDzLslcuC6Fmo9W0InODwfIisVqaT0JtIxyZqs3lyXiOJYXBqiXBzh8Hqa1rCPSMF2Bnd2lDoMIB5ISxARNwk5ZPi18Bwqd6XuU3CfK5jgMrPMMXBLufglci76CSBA95TJGeLdJGpKyFyAnAEfx76S/g//9dxu5vvI9orBsCohhVL9VACCOvqzxIU8f9B9+10SZlRUDWkZXYLL1onQ2kM196XnsQCYTPiNwM2zEJqw7UrXZijRdnGGSKOe0rSN+XaVl30lzLgEl0wdcazlN+2fkdcfFvWY6BSQngokZbghdMYJr8R08k6UZv+ElrPGfv45ITbi1xjkT/ts2Et1zCU6ENQdj/KdhqSI9Fy5totA9C+Qc08EAjLcSzNfziGUWcXhoJoNrKhcfwYSfLvWP81Kxg7FZ5lJBr+bcbf+n0a3EHP83LLm/r4JDF6k/+KUN8N+FMs6Yq4mK97pQ5zoFuuZGKzPmcOqUkZ+/z3IQeBDA+LHAatqZOP6Jb0cI6RgWntncL5nuF+0Ch7eRGklddbTxTNqdFRLN6Uk2t9VbkxDL57xdk29kQl1sWjnLjv/Ds+pnXD0VDfPI8a2opQyvadunbMX3pmzYM0LkLd+wd2CmsbZMzkbwi3Iz449rwz1xQLHpzANoTrqq2s6MvpK7AVqdKH5VgevVLc7cx0yM1CPfHiMH81s+pOSaN4GqgYnqWLR7qM71Y0sHnxleCLSJIl4ugpuBe1UQn4fUAj8PhMdgqsEI8QvTdFUMklkSjFrBXu2MFhbTHHPHnNWQvhCFLIiE5j30IEbZey8he3tV4bX2+96wJb7Lskjj3MHpJ7dOSF3TgK+WFmv9K94iKWh0UekZ/O14WpPALYfUFV/dhz4P0h6N8mJ0WW94dc3wquKRA6Sjzo1s9ZLvW+PdjRK11373dIkbJTs7QIHwAHumhCI2Xb7+418qL3nWfdeFSJb6pxuJMS51rt3VKETjvau+orW4OdstiNzZhBpstnmubrmqCTNIOd3F4k6T17RNDELREr6G1M7+S/inPCvC8Ss1qEpJoyB/9wgGowIKQ0rEAQMRGeFeVOz+wP1Sz5WZoTczvfViqEKMyuRad35/d6bVBvAXxpirBSFUEwc5WNUpsmsJE/SLzxT0b8DGydOeq0nmS/uiG2ge0M03NcDFb4FbqrI6AH7OPdNeUmYy9+7qQDAq/fFGkbYhUlk1h+qPZpAYwH6tS2vDCZdJsk1jf4BTch5/SHWIFbTGypDfauzBIFlP07oYEO6gbebZGKqKHVXIW7TQxbhBMyUzD75Kk7q3GNIjXitBNYV0y5yL0KyvMeSMKwqAeq5qkBzv9us95cTSVke9vt8MFVsXLKi9MmBxjZVwwotsKNh1PL3NUbtTmxDFgxI2dqrCh/MZHcEOacQiJZVrAf9vpdt49Wjs1lpEy4Iiu23j/G09jWxs74RmvdyGW5ZNxJE1/934wi0w0OlGf8Q0/4oNnuvx4MZvhEwVCIDakV1", "iter": 200000};
+const b64d = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function go(){
+  const pw = document.getElementById('pw').value;
+  const err = document.getElementById('err'); err.textContent = '';
+  try{
+    const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey(
+      {name:'PBKDF2', salt:b64d(P.salt), iterations:P.iter, hash:'SHA-256'},
+      km, {name:'AES-GCM', length:256}, false, ['decrypt']);
+    const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64d(P.iv)}, key, b64d(P.ct));
+    const html = new TextDecoder().decode(pt);
+    document.open(); document.write(html); document.close();
+  }catch(e){ err.textContent = 'Wrong password — try again.'; }
+}
+</script>
+</body></html>
