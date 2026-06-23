@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Rindegastos · Unit Economics — LATAM</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#022759; --blue:#2E86C1; --card:#EBF5FD; --bg:#F6F9FE; --green:#1E9E5A;
+  --amber:#E08A1E; --red:#D9534F; --ink:#0C2340; --line:#CFE0F2; --soft:#5B7494;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Nunito Sans','Segoe UI',system-ui,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+.wrap{max-width:1220px;margin:0 auto;padding:18px 20px 60px}
+header{background:var(--navy);color:#fff;border-radius:14px;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+header h1{margin:0;font-size:21px;font-weight:800;letter-spacing:.2px}
+header .sub{font-size:12.5px;opacity:.85;margin-top:3px}
+.badge{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:6px 13px;font-size:12px}
+.filters{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-top:14px;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start}
+.fgroup{display:flex;flex-direction:column;gap:6px}
+.fgroup label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--soft)}
+select{font-family:inherit;font-size:14px;font-weight:700;color:var(--navy);border:1.5px solid var(--line);border-radius:8px;padding:7px 10px;background:#fff;min-width:150px}
+.fxin{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.fxin span{font-size:10px;font-weight:800;color:var(--soft);letter-spacing:.4px}
+.fxin input{width:96px;font-family:inherit;font-weight:700;color:var(--navy);border:1.5px solid var(--line);border-radius:7px;padding:5px 7px;font-size:13px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:12.5px;font-weight:700;border:1.5px solid var(--line);background:#fff;color:var(--soft);border-radius:18px;padding:5px 12px;cursor:pointer;user-select:none;transition:.12s}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.chip.cat.on{background:var(--blue);border-color:var(--blue)}
+.toggle{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:700;color:var(--navy)}
+.switch{width:42px;height:23px;border-radius:14px;background:#c7d6e8;position:relative;transition:.15s}
+.switch.on{background:var(--green)}
+.switch::after{content:"";position:absolute;width:19px;height:19px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.15s}
+.switch.on::after{left:21px}
+.btn{font-family:inherit;font-size:12.5px;font-weight:800;border:1.5px solid var(--line);background:#fff;color:var(--navy);border-radius:8px;padding:8px 14px;cursor:pointer}
+.btn:hover{background:var(--card)}
+h2.sec{font-size:14px;font-weight:800;letter-spacing:.4px;color:var(--navy);text-transform:uppercase;margin:26px 2px 10px}
+.note{font-size:12px;color:var(--soft);margin:2px 2px 12px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px 16px;position:relative;overflow:hidden}
+.kpi .lbl{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--soft)}
+.kpi .val{font-size:27px;font-weight:800;color:var(--navy);margin-top:7px;line-height:1}
+.kpi .hint{font-size:11.5px;color:var(--soft);margin-top:6px}
+.kpi .bar{position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--blue)}
+.kpi.good .bar{background:var(--green)} .kpi.warn .bar{background:var(--amber)} .kpi.bad .bar{background:var(--red)}
+.grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px 18px}
+.panel h3{margin:0 0 10px;font-size:14px;color:var(--navy);font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{padding:7px 8px;text-align:right;border-bottom:1px solid #eef3f9}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+tr.tot td{font-weight:800;color:var(--navy);border-top:2px solid var(--navy)}
+.eff{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.eff .t{background:var(--card);border-radius:10px;padding:12px 14px}
+.eff .t .l{font-size:11px;font-weight:800;color:var(--soft);text-transform:uppercase;letter-spacing:.4px}
+.eff .t .v{font-size:22px;font-weight:800;color:var(--navy);margin-top:5px}
+.heat td.c{font-weight:700;color:#fff;border-radius:4px;text-align:center}
+.trendhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.charts4{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+.chartbox{background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px 14px}
+.chartbox h4{margin:2px 4px 8px;font-size:12.5px;color:var(--navy);font-weight:800}
+.footer{font-size:11.5px;color:var(--soft);margin-top:26px;line-height:1.55;border-top:1px solid var(--line);padding-top:14px}
+@media(max-width:880px){.cards{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.charts4{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Rindegastos · Unit Economics — LATAM</h1>
+      <div class="sub" id="subline">L12M</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="badge" id="snapBadge">snapshot</span>
+      <span class="badge" id="histBadge">history</span>
+    </div>
+  </header>
+
+  <div class="filters">
+    <div class="fgroup"><label>Country</label><select id="fCountry"></select></div>
+    <div class="fgroup"><label>Segment</label><div class="chips" id="fSeg"></div></div>
+    <div class="fgroup"><label>Channel</label><div class="chips" id="fChan"></div></div>
+    <div class="fgroup"><label>Plan</label><div class="chips" id="fPlan"></div></div>
+    <div class="fgroup"><label>CS in CAC</label>
+      <div class="toggle" id="csToggle"><div class="switch on" id="csSwitch"></div><span id="csTxt">Included</span></div>
+    </div>
+    <div class="fgroup"><label>&nbsp;</label><button class="btn" id="resetBtn">Reset filters</button></div>
+  </div>
+
+  <div class="filters" id="fxbar" style="margin-top:8px">
+    <div class="fgroup"><label>Display FX — local currency per US$ (editable)</label><div class="chips" id="fxInputs"></div></div>
+    <div class="fgroup" style="flex:1;min-width:220px"><label>&nbsp;</label><span class="note" id="fxNote" style="margin:6px 0 0"></span></div>
+  </div>
+
+  <h2 class="sec">Unit Economics <span style="font-weight:600;text-transform:none;color:var(--soft);font-size:12px">— responds to all filters</span></h2>
+  <div class="cards" id="kpiCards"></div>
+
+  <h2 class="sec">S&amp;M Cost Breakdown</h2>
+  <div class="note">Where sales &amp; marketing spend concentrates. Responds to <b>Country</b> + <b>Channel</b> + the category toggles below (cost is tracked at country×channel granularity, so Segment/Plan don't subdivide it).</div>
+  <div class="chips" id="fCat" style="margin:0 2px 12px"></div>
+  <div class="grid2">
+    <div class="panel">
+      <h3>Spend by category</h3>
+      <canvas id="catBar" height="150"></canvas>
+      <div class="eff">
+        <div class="t"><div class="l">S&amp;M / New Customer</div><div class="v" id="effCust">—</div></div>
+        <div class="t"><div class="l">S&amp;M / $1 New ARR</div><div class="v" id="effArr">—</div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Category share</h3>
+      <canvas id="catDonut" height="150"></canvas>
+      <table id="catTable" style="margin-top:8px"></table>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <h3>Total S&amp;M by Country × Channel <span style="font-weight:600;color:var(--soft);font-size:11.5px">(full landscape — heat-mapped, $)</span></h3>
+    <table class="heat" id="heat"></table>
+  </div>
+
+  <h2 class="sec">Trends <span style="font-weight:600;text-transform:none;color:var(--soft);font-size:12px">— rolling L12M, one point per monthly snapshot</span></h2>
+  <div class="trendhead">
+    <div class="note" id="trendNote"></div>
+    <div class="fgroup"><label>Trend scope</label><select id="trendCountry"></select></div>
+  </div>
+  <div class="charts4">
+    <div class="chartbox"><h4>CAC (US$)</h4><canvas id="tCac" height="120"></canvas></div>
+    <div class="chartbox"><h4>CLTV / CAC (x)</h4><canvas id="tRatio" height="120"></canvas></div>
+    <div class="chartbox"><h4>Net Revenue Retention (%)</h4><canvas id="tNrr" height="120"></canvas></div>
+    <div class="chartbox"><h4>Churn value (%)</h4><canvas id="tChurn" height="120"></canvas></div>
+  </div>
+
+  <div class="footer" id="footer"></div>
+</div>
+
+<script>
+const DATA = {"period_label": "L12M - rolling 12-month window", "snapshot_month": "2026-04", "generated": "2026-06-23", "lists": {"countries": ["Chile", "Peru", "Colombia", "Mexico", "Argentina"], "segments": ["SMB", "Mid Market", "Corporate"], "channels": ["Inbound", "Outbound", "A&P"], "plans": ["Starter", "Business", "Corporate", "Enterprise REG", "Enterprise ACT", "Fixed", "Legacy"]}, "ccy": {"Chile": "CLP", "Peru": "PEN", "Colombia": "COP", "Mexico": "MXN", "Argentina": "ARS"}, "fx_model": {"CLP": 950.0, "PEN": 3.7, "COP": 4400.0, "MXN": 20.4, "ARS": 1400.0}, "fx_display": {"CLP": 896.259, "PEN": 3.4149, "COP": 3715.3877, "MXN": 17.3176, "ARS": 1401.1515}, "fact_new": [["Argentina", "Corporate", "Inbound", "Enterprise ACT", 1, 2808, 1924.15, 0], ["Argentina", "Corporate", "Outbound", "Enterprise ACT", 1, 24000, 25483.19, 0], ["Argentina", "Corporate", "Outbound", "Enterprise REG", 1, 19200, 20386.55, 0], ["Argentina", "Mid Market", "A&P", "Corporate", 1, 3120, 607.64, 0], ["Argentina", "Mid Market", "A&P", "Enterprise ACT", 2, 3348, 1093.51, 0], ["Argentina", "Mid Market", "A&P", "Enterprise REG", 1, 5400, 703.63, 0], ["Argentina", "Mid Market", "Inbound", "Corporate", 7, 28200, 13996.37, 0], ["Argentina", "Mid Market", "Inbound", "Enterprise ACT", 2, 6360, 3894.21, 0], ["Argentina", "Mid Market", "Outbound", "Corporate", 12, 67524, 71696.96, 0], ["Argentina", "Mid Market", "Outbound", "Enterprise REG", 5, 26100, 27712.97, 0], ["Argentina", "SMB", "A&P", "Corporate", 3, 4680, 1625.86, 0], ["Argentina", "SMB", "A&P", "Enterprise ACT", 1, 360, 491.43, 0], ["Argentina", "SMB", "A&P", "Enterprise REG", 3, 26820, 2558.03, 0], ["Argentina", "SMB", "Inbound", "Business", 1, 660, 1791.57, 0], ["Argentina", "SMB", "Inbound", "Corporate", 26, 89244, 51029.9, 0], ["Argentina", "SMB", "Inbound", "Enterprise REG", 4, 6840, 7425.51, 0], ["Argentina", "SMB", "Inbound", "Starter", 1, 120, 1758.24, 0], ["Argentina", "SMB", "Outbound", "Corporate", 5, 10680, 36831.75, 0], ["Argentina", "SMB", "Outbound", "Enterprise ACT", 1, 2400, 7380.94, 0], ["Chile", "Corporate", "Outbound", "Corporate", 4, 62126.76, 100356.92, 1143.42], ["Chile", "Corporate", "Outbound", "Enterprise ACT", 4, 66042.72, 106682.59, 1143.42], ["Chile", "Corporate", "Outbound", "Enterprise REG", 5, 138699.79, 224049.73, 1429.28], ["Chile", "Mid Market", "A&P", "Corporate", 2, 7118.04, 37602.54, 571.71], ["Chile", "Mid Market", "A&P", "Enterprise ACT", 1, 5940, 26707.89, 285.86], ["Chile", "Mid Market", "A&P", "Enterprise REG", 1, 4670.88, 22493.47, 285.86], ["Chile", "Mid Market", "Inbound", "Business", 1, 1330.56, 1113.27, 285.86], ["Chile", "Mid Market", "Inbound", "Corporate", 82, 281858.02, 188466.03, 23440.19], ["Chile", "Mid Market", "Inbound", "Enterprise REG", 5, 28748.16, 17995.62, 1429.28], ["Chile", "Mid Market", "Inbound", "Starter", 3, 2199.72, 2331.77, 857.57], ["Chile", "Mid Market", "Outbound", "Corporate", 29, 208490.76, 336787.08, 8289.82], ["Chile", "Mid Market", "Outbound", "Enterprise REG", 6, 49129.32, 79361.41, 1715.14], ["Chile", "SMB", "A&P", "Business", 2, 157.92, 14489.8, 571.71], ["Chile", "SMB", "A&P", "Corporate", 12, 13456.56, 128478.04, 3430.27], ["Chile", "SMB", "A&P", "Enterprise REG", 1, 1680, 12561.54, 285.86], ["Chile", "SMB", "A&P", "Starter", 3, 132, 21386.41, 857.57], ["Chile", "SMB", "Inbound", "Business", 188, 43556.4, 93081.99, 53740.92], ["Chile", "SMB", "Inbound", "Corporate", 692, 483146.55, 524217.71, 197812.34], ["Chile", "SMB", "Inbound", "Enterprise ACT", 1, 2122.56, 1558.79, 285.86], ["Chile", "SMB", "Inbound", "Enterprise REG", 16, 23250.12, 18915.49, 4573.7], ["Chile", "SMB", "Inbound", "Starter", 260, 14545.84, 103027.48, 74322.56], ["Chile", "SMB", "Outbound", "Corporate", 10, 18971.4, 94187.4, 2858.56], ["Colombia", "Corporate", "Outbound", "Enterprise ACT", 2, 7258.68, 11556.21, 753.38], ["Colombia", "Corporate", "Outbound", "Enterprise REG", 3, 67677.6, 107746.43, 1130.07], ["Colombia", "Mid Market", "A&P", "Corporate", 1, 6333.72, 1309.18, 376.69], ["Colombia", "Mid Market", "Inbound", "Corporate", 16, 48432.12, 13851.92, 6027.02], ["Colombia", "Mid Market", "Inbound", "Enterprise ACT", 1, 5086.92, 989.34, 376.69], ["Colombia", "Mid Market", "Inbound", "Enterprise REG", 3, 10485.96, 2681.53, 1130.07], ["Colombia", "Mid Market", "Outbound", "Corporate", 9, 30357.01, 48330.01, 3390.2], ["Colombia", "Mid Market", "Outbound", "Enterprise ACT", 11, 32606.09, 51910.68, 4143.57], ["Colombia", "Mid Market", "Outbound", "Enterprise REG", 11, 49658.81, 79059.53, 4143.57], ["Colombia", "SMB", "A&P", "Corporate", 1, 1582.56, 327.11, 376.69], ["Colombia", "SMB", "Inbound", "Business", 2, 258.48, 1383.77, 753.38], ["Colombia", "SMB", "Inbound", "Corporate", 60, 54215.47, 44300.69, 22601.31], ["Colombia", "SMB", "Inbound", "Enterprise REG", 3, 4215, 2305.28, 1130.07], ["Colombia", "SMB", "Inbound", "Starter", 1, 32.28, 686.07, 376.69], ["Colombia", "SMB", "Outbound", "Corporate", 6, 18542.28, 49410.06, 2260.13], ["Colombia", "SMB", "Outbound", "Enterprise ACT", 2, 13153.08, 16665.79, 753.38], ["Colombia", "SMB", "Outbound", "Enterprise REG", 8, 42985.68, 66392.86, 3013.51], ["Mexico", "Corporate", "Outbound", "Enterprise REG", 1, 38235.24, 32554.49, 932.98], ["Mexico", "Mid Market", "A&P", "Enterprise REG", 1, 5735.28, 0, 932.98], ["Mexico", "Mid Market", "Inbound", "Corporate", 3, 13882.32, 2346.38, 2798.94], ["Mexico", "Mid Market", "Inbound", "Enterprise ACT", 1, 1764.72, 782.13, 932.98], ["Mexico", "Mid Market", "Inbound", "Enterprise REG", 2, 8035.32, 1564.25, 1865.96], ["Mexico", "Mid Market", "Outbound", "Corporate", 2, 17176.41, 14624.45, 1865.96], ["Mexico", "Mid Market", "Outbound", "Enterprise REG", 3, 26558.88, 22612.93, 2798.94], ["Mexico", "SMB", "Inbound", "Corporate", 10, 11294.04, 7821.27, 9329.79], ["Mexico", "SMB", "Inbound", "Enterprise REG", 3, 7599.96, 2346.38, 2798.94], ["Mexico", "SMB", "Inbound", "Starter", 3, 670.56, 2346.38, 2798.94], ["Mexico", "SMB", "Outbound", "Enterprise REG", 2, 6434.4, 23263.95, 1865.96], ["Peru", "Corporate", "Outbound", "Corporate", 2, 19629.21, 22440.26, 1168.14], ["Peru", "Corporate", "Outbound", "Enterprise REG", 8, 153456.84, 175432.99, 4672.54], ["Peru", "Mid Market", "A&P", "Corporate", 3, 15437.76, 18139.28, 1752.2], ["Peru", "Mid Market", "Inbound", "Corporate", 15, 57293.4, 28938.42, 8761.01], ["Peru", "Mid Market", "Inbound", "Enterprise REG", 1, 5340.24, 2324.96, 584.07], ["Peru", "Mid Market", "Outbound", "Corporate", 37, 265628.36, 303668.3, 21610.5], ["Peru", "Mid Market", "Outbound", "Enterprise ACT", 1, 11511.96, 13160.56, 584.07], ["Peru", "Mid Market", "Outbound", "Enterprise REG", 11, 68538.6, 78353.83, 6424.74], ["Peru", "SMB", "A&P", "Corporate", 2, 1914.24, 7049.97, 1168.14], ["Peru", "SMB", "Inbound", "Business", 17, 4875.36, 17168.12, 9929.15], ["Peru", "SMB", "Inbound", "Corporate", 99, 99812.4, 118564.91, 57822.7], ["Peru", "SMB", "Inbound", "Enterprise ACT", 1, 1967.88, 1447.36, 584.07], ["Peru", "SMB", "Inbound", "Enterprise REG", 2, 10710.72, 4657.78, 1168.14], ["Peru", "SMB", "Inbound", "Starter", 7, 618.36, 6707.73, 4088.47], ["Peru", "SMB", "Outbound", "Corporate", 5, 59150.52, 51403.72, 2920.34], ["Peru", "SMB", "Outbound", "Enterprise REG", 5, 45671.28, 50387.73, 2920.34]], "fact_base": [["Argentina", "Corporate", "Outbound", "Corporate", 9321.72, 1158.24, 10320, 1], ["Argentina", "Corporate", "Outbound", "Enterprise ACT", 2975.4, 10002.96, 0, 1], ["Argentina", "Corporate", "Outbound", "Fixed", 1742.04, 10812, 0, 1], ["Argentina", "Mid Market", "Inbound", "Corporate", 59856, 55997.28, 0, 14], ["Argentina", "Mid Market", "Inbound", "Enterprise ACT", 5760, 5760, 0, 1], ["Argentina", "Mid Market", "Inbound", "Enterprise REG", 4811.04, 8396.04, 0, 2], ["Argentina", "Mid Market", "Inbound", "Fixed", 1395, 1395, 0, 1], ["Argentina", "Mid Market", "Inbound", "Legacy", 1620, 3180, 0, 1], ["Argentina", "Mid Market", "Inbound", "Starter", 1200, 936, 0, 1], ["Argentina", "Mid Market", "Outbound", "Corporate", 89124.36, 77993.28, 0, 20], ["Argentina", "Mid Market", "Outbound", "Enterprise ACT", 10932.36, 13148.76, 0, 4], ["Argentina", "Mid Market", "Outbound", "Enterprise REG", 1675.92, 1849.44, 0, 1], ["Argentina", "Mid Market", "Outbound", "Legacy", 4644, 9276, 0, 3], ["Argentina", "SMB", "Inbound", "Business", 3676.8, 3588, 528, 7], ["Argentina", "SMB", "Inbound", "Corporate", 28576.32, 43007.76, 6396, 21], ["Argentina", "SMB", "Inbound", "Enterprise REG", 1680, 2040, 0, 1], ["Argentina", "SMB", "Inbound", "Fixed", 29.76, 357.48, 0, 1], ["Argentina", "SMB", "Inbound", "Starter", 192, 216, 0, 2], ["Argentina", "SMB", "Outbound", "Business", 1377.24, 2040, 0, 3], ["Argentina", "SMB", "Outbound", "Corporate", 26424, 19956, 15384, 10], ["Argentina", "SMB", "Outbound", "Enterprise ACT", 1824, 1352.4, 0, 3], ["Argentina", "SMB", "Outbound", "Enterprise REG", 0, 0, 1848, 0], ["Argentina", "SMB", "Outbound", "Fixed", 266.64, 741.6, 0, 2], ["Argentina", "SMB", "Outbound", "Legacy", 600, 1260, 1716, 2], ["Argentina", "SMB", "Outbound", "Starter", 312, 288, 0, 1], ["Chile", "Corporate", "Inbound", "Corporate", 72651.6, 50452.08, 26052, 6], ["Chile", "Corporate", "Inbound", "Enterprise ACT", 314.16, 3343.2, 0, 1], ["Chile", "Corporate", "Inbound", "Enterprise REG", 49599.36, 61297.08, 0, 2], ["Chile", "Corporate", "Inbound", "Fixed", 5206.92, 5274.48, 0, 1], ["Chile", "Corporate", "Outbound", "Corporate", 951088.8, 1001591.16, 83616, 59], ["Chile", "Corporate", "Outbound", "Enterprise ACT", 1466995.8, 1640044.2, 252, 76], ["Chile", "Corporate", "Outbound", "Enterprise REG", 341049.36, 378490.44, 0, 18], ["Chile", "Corporate", "Outbound", "Fixed", 84188.04, 92123.16, 0, 5], ["Chile", "Corporate", "Outbound", "Legacy", 92397.48, 39018.6, 9768, 4], ["Chile", "Mid Market", "A&P", "Corporate", 26342.64, 30612.24, 0, 6], ["Chile", "Mid Market", "Inbound", "Business", 68668.8, 67633.8, 1548, 28], ["Chile", "Mid Market", "Inbound", "Corporate", 1166219.4, 1213959.97, 33216, 279], ["Chile", "Mid Market", "Inbound", "Enterprise ACT", 72429.84, 95751.36, 0, 20], ["Chile", "Mid Market", "Inbound", "Enterprise REG", 81684.48, 64909.8, 8088, 13], ["Chile", "Mid Market", "Inbound", "Fixed", 19254.84, 19925.04, 0, 8], ["Chile", "Mid Market", "Inbound", "Legacy", 22826.28, 23442.72, 0, 5], ["Chile", "Mid Market", "Inbound", "Starter", 9678.84, 10286.76, 552, 8], ["Chile", "Mid Market", "Outbound", "Business", 31561.8, 34011.72, 0, 12], ["Chile", "Mid Market", "Outbound", "Corporate", 1321771.8, 1420930.2, 76824, 265], ["Chile", "Mid Market", "Outbound", "Enterprise ACT", 518284.08, 637733.4, 0, 90], ["Chile", "Mid Market", "Outbound", "Enterprise REG", 151561.44, 161055.48, 23076, 23], ["Chile", "Mid Market", "Outbound", "Fixed", 21739.8, 22248.24, 456, 5], ["Chile", "Mid Market", "Outbound", "Legacy", 47041.32, 42740.4, 35412, 10], ["Chile", "Mid Market", "Outbound", "Starter", 20404.92, 5398.56, 0, 2], ["Chile", "SMB", "A&P", "Business", 1570.08, 1074.24, 732, 5], ["Chile", "SMB", "A&P", "Corporate", 28361.28, 32065.68, 2436, 29], ["Chile", "SMB", "A&P", "Enterprise REG", 768, 768, 0, 1], ["Chile", "SMB", "A&P", "Starter", 676.44, 916.92, 0, 2], ["Chile", "SMB", "Inbound", "Business", 91587.48, 85765.68, 11448, 245], ["Chile", "SMB", "Inbound", "Corporate", 796668.84, 783171.24, 130980, 908], ["Chile", "SMB", "Inbound", "Enterprise ACT", 20234.04, 23202.12, 0, 17], ["Chile", "SMB", "Inbound", "Enterprise REG", 4790.76, 7872, 1200, 6], ["Chile", "SMB", "Inbound", "Fixed", 17402.52, 17470.2, 1176, 17], ["Chile", "SMB", "Inbound", "Legacy", 2040.96, 482.64, 3168, 7], ["Chile", "SMB", "Inbound", "Starter", 23593.92, 20685.72, 2496, 212], ["Chile", "SMB", "Outbound", "Business", 10989.48, 10239.48, 1032, 27], ["Chile", "SMB", "Outbound", "Corporate", 272879.52, 265751.64, 18096, 266], ["Chile", "SMB", "Outbound", "Enterprise ACT", 36878.28, 45441, 3684, 23], ["Chile", "SMB", "Outbound", "Enterprise REG", 26532.6, 29982.48, 0, 11], ["Chile", "SMB", "Outbound", "Fixed", 4938.12, 4970.64, 3540, 12], ["Chile", "SMB", "Outbound", "Legacy", 5261.64, 5026.92, 2952, 10], ["Chile", "SMB", "Outbound", "Starter", 3318.72, 2774.16, 444, 27], ["Colombia", "Corporate", "Inbound", "Enterprise REG", 15498.24, 24425.52, 0, 2], ["Colombia", "Corporate", "Outbound", "Corporate", 32047.32, 26943.96, 6000, 2], ["Colombia", "Corporate", "Outbound", "Enterprise ACT", 47078.28, 53207.64, 0, 4], ["Colombia", "Corporate", "Outbound", "Enterprise REG", 135327.48, 132833.76, 0, 7], ["Colombia", "Mid Market", "A&P", "Enterprise REG", 15567.72, 26599.56, 0, 1], ["Colombia", "Mid Market", "Inbound", "Business", 5555.28, 5813.64, 0, 1], ["Colombia", "Mid Market", "Inbound", "Corporate", 81653.4, 85767.36, 2424, 16], ["Colombia", "Mid Market", "Inbound", "Enterprise ACT", 413.4, 8146.92, 0, 1], ["Colombia", "Mid Market", "Inbound", "Enterprise REG", 44346.6, 72407.52, 0, 7], ["Colombia", "Mid Market", "Outbound", "Corporate", 59658, 60693.6, 1176, 12], ["Colombia", "Mid Market", "Outbound", "Enterprise ACT", 50128.56, 51872.64, 0, 11], ["Colombia", "Mid Market", "Outbound", "Enterprise REG", 131854.2, 155011.92, 0, 25], ["Colombia", "SMB", "A&P", "Corporate", 2034.72, 2147.76, 0, 2], ["Colombia", "SMB", "Inbound", "Business", 64.56, 0, 384, 1], ["Colombia", "SMB", "Inbound", "Corporate", 25389.36, 26246.88, 5844, 22], ["Colombia", "SMB", "Inbound", "Enterprise REG", 2922.96, 904.32, 984, 2], ["Colombia", "SMB", "Inbound", "Fixed", 2341.32, 2341.32, 0, 1], ["Colombia", "SMB", "Inbound", "Starter", 1033.56, 1679.64, 120, 4], ["Colombia", "SMB", "Outbound", "Business", 837.12, 994.8, 0, 1], ["Colombia", "SMB", "Outbound", "Corporate", 41718.36, 13875.72, 1536, 15], ["Colombia", "SMB", "Outbound", "Enterprise ACT", 4427.52, 0, 0, 1], ["Colombia", "SMB", "Outbound", "Enterprise REG", 16178.04, 13781.52, 8844, 8], ["Mexico", "Corporate", "Inbound", "Corporate", 26117.64, 25058.88, 0, 1], ["Mexico", "Corporate", "Outbound", "Enterprise ACT", 13529.4, 14588.28, 0, 1], ["Mexico", "Corporate", "Outbound", "Enterprise REG", 41735.4, 48314.16, 0, 2], ["Mexico", "Mid Market", "A&P", "Corporate", 5411.76, 0, 0, 1], ["Mexico", "Mid Market", "Inbound", "Corporate", 68158.68, 83782.2, 3828, 14], ["Mexico", "Mid Market", "Inbound", "Enterprise ACT", 3699.96, 6988.68, 0, 3], ["Mexico", "Mid Market", "Inbound", "Enterprise REG", 26205.96, 30044.16, 0, 2], ["Mexico", "Mid Market", "Outbound", "Business", 1132.56, 1233.48, 0, 1], ["Mexico", "Mid Market", "Outbound", "Corporate", 29614.2, 26776.44, 0, 7], ["Mexico", "Mid Market", "Outbound", "Enterprise ACT", 15820.56, 13472.76, 0, 5], ["Mexico", "Mid Market", "Outbound", "Enterprise REG", 44821.2, 46944.24, 15612, 8], ["Mexico", "SMB", "A&P", "Corporate", 1588.32, 1353, 0, 2], ["Mexico", "SMB", "Inbound", "Business", 1341.24, 1694.16, 0, 2], ["Mexico", "SMB", "Inbound", "Corporate", 11947.2, 11179.56, 1848, 13], ["Mexico", "SMB", "Inbound", "Enterprise ACT", 41176.44, 0, 63372, 1], ["Mexico", "SMB", "Inbound", "Enterprise REG", 19294.08, 26823.48, 0, 3], ["Mexico", "SMB", "Inbound", "Starter", 35.28, 0, 492, 1], ["Mexico", "SMB", "Outbound", "Corporate", 1177.68, 3647.52, 756, 3], ["Mexico", "SMB", "Outbound", "Enterprise REG", 48899.64, 44483.76, 1728, 5], ["Mexico", "SMB", "Outbound", "Legacy", 1630.56, 841.2, 0, 2], ["Peru", "Corporate", "Inbound", "Enterprise REG", 42461.88, 35745.96, 10032, 3], ["Peru", "Corporate", "Outbound", "Corporate", 59435.04, 48540.36, 0, 5], ["Peru", "Corporate", "Outbound", "Enterprise ACT", 78332.04, 91671.48, 0, 8], ["Peru", "Corporate", "Outbound", "Enterprise REG", 179611.8, 294343.32, 0, 7], ["Peru", "Corporate", "Outbound", "Fixed", 8259, 0, 0, 1], ["Peru", "Mid Market", "A&P", "Corporate", 10331.16, 10227.84, 0, 1], ["Peru", "Mid Market", "A&P", "Enterprise ACT", 5755.92, 5410.56, 0, 1], ["Peru", "Mid Market", "Inbound", "Corporate", 122643.72, 121353.72, 10056, 24], ["Peru", "Mid Market", "Inbound", "Enterprise ACT", 30290.64, 30234.96, 0, 5], ["Peru", "Mid Market", "Inbound", "Enterprise REG", 59868.12, 88939.92, 0, 6], ["Peru", "Mid Market", "Inbound", "Legacy", 10513.8, 12959.76, 0, 3], ["Peru", "Mid Market", "Outbound", "Business", 5566.2, 8180.64, 0, 1], ["Peru", "Mid Market", "Outbound", "Corporate", 200619.12, 196596.84, 10800, 32], ["Peru", "Mid Market", "Outbound", "Enterprise ACT", 53805.84, 56563.32, 0, 13], ["Peru", "Mid Market", "Outbound", "Enterprise REG", 138154.68, 155861.4, 0, 17], ["Peru", "Mid Market", "Outbound", "Fixed", 0, 0, 7620, 0], ["Peru", "Mid Market", "Outbound", "Legacy", 2192.76, 2217, 0, 1], ["Peru", "SMB", "A&P", "Corporate", 3837.24, 3099.36, 2004, 3], ["Peru", "SMB", "Inbound", "Business", 5116.56, 4357.44, 2028, 18], ["Peru", "SMB", "Inbound", "Corporate", 98654.4, 95336.4, 33828, 61], ["Peru", "SMB", "Inbound", "Enterprise ACT", 2949, 2212.44, 0, 4], ["Peru", "SMB", "Inbound", "Enterprise REG", 17377.92, 18140.04, 0, 4], ["Peru", "SMB", "Inbound", "Fixed", 3134.4, 3401.64, 0, 3], ["Peru", "SMB", "Inbound", "Starter", 1307.16, 1349.28, 36, 7], ["Peru", "SMB", "Outbound", "Business", 759, 843.36, 0, 1], ["Peru", "SMB", "Outbound", "Corporate", 117363.36, 103560.6, 19860, 29], ["Peru", "SMB", "Outbound", "Enterprise ACT", 6058.08, 8331.96, 0, 5], ["Peru", "SMB", "Outbound", "Enterprise REG", 48087.84, 49414.8, 0, 5], ["Peru", "SMB", "Outbound", "Fixed", 672.96, 841.56, 0, 2], ["Peru", "SMB", "Outbound", "Legacy", 843.36, 506.04, 0, 1]], "sm_rows": [{"country": "Chile", "channel": "Inbound", "personnel": 351303.09, "marketing": 495452.05, "leadership": 60604.0, "tools": 43349.01, "commission": 0, "total": 950708.15, "customers": 1241, "new_arr": 880757.93}, {"country": "Chile", "channel": "Outbound", "personnel": 338574.73, "marketing": 495452.05, "leadership": 59004.38, "tools": 48393.97, "commission": 0, "total": 941425.13, "customers": 58, "new_arr": 543460.75}, {"country": "Chile", "channel": "A&P", "personnel": 117324.02, "marketing": 110100.46, "leadership": 19208.68, "tools": 12475.53, "commission": 4611, "total": 263719.69, "customers": 22, "new_arr": 33155.4}, {"country": "Peru", "channel": "Inbound", "personnel": 113832.19, "marketing": 47002.57, "leadership": 18974.51, "tools": 0.0, "commission": 0, "total": 179809.28, "customers": 142, "new_arr": 180618.36}, {"country": "Peru", "channel": "Outbound", "personnel": 536952.03, "marketing": 47002.57, "leadership": 92360.1, "tools": 18532.69, "commission": 0, "total": 694847.39, "customers": 69, "new_arr": 623586.77}, {"country": "Peru", "channel": "A&P", "personnel": 11135.15, "marketing": 10445.02, "leadership": 1823.08, "tools": 0.0, "commission": 1786, "total": 25189.26, "customers": 5, "new_arr": 17352.0}, {"country": "Colombia", "channel": "Inbound", "personnel": 50379.12, "marketing": 8284.94, "leadership": 10441.18, "tools": 12714.71, "commission": 0, "total": 81819.95, "customers": 42, "new_arr": 122726.23}, {"country": "Colombia", "channel": "Outbound", "personnel": 348890.51, "marketing": 8284.94, "leadership": 25035.92, "tools": -192719.0, "commission": 0, "total": 189492.37, "customers": 24, "new_arr": 262239.23}, {"country": "Colombia", "channel": "A&P", "personnel": 0, "marketing": 1841.1, "leadership": 0, "tools": 0.0, "commission": 5239, "total": 7080.1, "customers": 11, "new_arr": 7916.28}, {"country": "Mexico", "channel": "Inbound", "personnel": 14760.62, "marketing": 7363.31, "leadership": 8456.18, "tools": 35618.5, "commission": 0, "total": 66198.6, "customers": 86, "new_arr": 43246.92}, {"country": "Mexico", "channel": "Outbound", "personnel": 78937.62, "marketing": 7363.31, "leadership": 61273.19, "tools": 283497.46, "commission": 0, "total": 431071.57, "customers": 51, "new_arr": 88404.93}, {"country": "Mexico", "channel": "A&P", "personnel": 0, "marketing": 1636.29, "leadership": 0, "tools": 0.0, "commission": 0, "total": 1636.29, "customers": 2, "new_arr": 5735.28}, {"country": "Argentina", "channel": "Inbound", "personnel": 63093.83, "marketing": 0, "leadership": 2446.17, "tools": -48333.21, "commission": 0, "total": 17206.79, "customers": 22, "new_arr": 134232}, {"country": "Argentina", "channel": "Outbound", "personnel": 146757.48, "marketing": 0, "leadership": 14118.2, "tools": -67819.86, "commission": 0, "total": 93055.81, "customers": 8, "new_arr": 149904}, {"country": "Argentina", "channel": "A&P", "personnel": 0, "marketing": 0, "leadership": 0, "tools": 0, "commission": 0, "total": 0, "customers": 1, "new_arr": 43728}], "cs_by_country": {"Chile": 379616.74, "Peru": 126158.61, "Colombia": 0, "Mexico": 52736.39, "Argentina": 28922.34}, "consolidated": {"customers": 1793, "new_arr": 3389618.0, "cac": 2729.8, "cltv": 52693.4, "ratio": 19.3, "payback": 9.06, "churn": 0.0686, "nrr": 1.0609}, "per_country": {"Chile": {"customers": 1328, "new_arr": 1544760.0, "cac": 2023.7, "cltv": 53626.5, "ratio": 26.5, "payback": 7.5, "churn": 0.0603, "nrr": 1.0586}, "Peru": {"customers": 216, "new_arr": 890147.0, "cac": 5146.6, "cltv": 79145.7, "ratio": 15.38, "payback": 10.65, "churn": 0.0733, "nrr": 1.1037}, "Colombia": {"customers": 140, "new_arr": 465276.0, "cac": 4666.4, "cltv": 162838.7, "ratio": 34.9, "payback": 9.02, "churn": 0.0381, "nrr": 1.0693}, "Mexico": {"customers": 31, "new_arr": 161841.0, "cac": 5289.0, "cltv": 27264.8, "ratio": 5.16, "payback": 10.71, "churn": 0.2173, "nrr": 0.9601}, "Argentina": {"customers": 78, "new_arr": 327595.0, "cac": 3566.2, "cltv": 18964.4, "ratio": 5.32, "payback": 16.21, "churn": 0.1392, "nrr": 1.0567}}};
+const HISTORY = [{"month": "2026-04", "label": "L12M to Apr 2026", "fx": {"CLP": 896.259, "PEN": 3.4149, "COP": 3715.3877, "MXN": 17.3176, "ARS": 1401.1515}, "customers": 1793, "new_arr": 3389618.0, "cac": 2729.8, "cltv": 52693.4, "ratio": 19.3, "payback": 9.06, "churn": 0.0686, "nrr": 1.0609, "per_country": {"Chile": {"customers": 1328, "new_arr": 1544760.0, "cac": 2023.7, "cltv": 53626.5, "ratio": 26.5, "payback": 7.5, "churn": 0.0603, "nrr": 1.0586}, "Peru": {"customers": 216, "new_arr": 890147.0, "cac": 5146.6, "cltv": 79145.7, "ratio": 15.38, "payback": 10.65, "churn": 0.0733, "nrr": 1.1037}, "Colombia": {"customers": 140, "new_arr": 465276.0, "cac": 4666.4, "cltv": 162838.7, "ratio": 34.9, "payback": 9.02, "churn": 0.0381, "nrr": 1.0693}, "Mexico": {"customers": 31, "new_arr": 161841.0, "cac": 5289.0, "cltv": 27264.8, "ratio": 5.16, "payback": 10.71, "churn": 0.2173, "nrr": 0.9601}, "Argentina": {"customers": 78, "new_arr": 327595.0, "cac": 3566.2, "cltv": 18964.4, "ratio": 5.32, "payback": 16.21, "churn": 0.1392, "nrr": 1.0567}}}];
+
+const $ = s => document.querySelector(s);
+const fmtUSD = (v,d=0)=> (v<0?"-":"")+"$"+Math.abs(v).toLocaleString("en-US",{maximumFractionDigits:d,minimumFractionDigits:d});
+const fmtPct = v => (v*100).toFixed(1)+"%";
+const COLORS = {Personnel:"#022759",Marketing:"#2E86C1",Leadership:"#5BA8D8",Tools:"#9CC9E8",Commission:"#C9E2F4"};
+
+const state = {
+  country:"All",
+  seg:new Set(DATA.lists.segments),
+  chan:new Set(DATA.lists.channels),
+  plan:new Set(DATA.lists.plans),
+  cat:new Set(["Personnel","Marketing","Leadership","Tools","Commission"]),
+  cs:true
+};
+// ---- FX revaluation (model FX -> editable display FX) ----
+state.fx = Object.assign({}, DATA.fx_display);
+const CCY = DATA.ccy, FXM = DATA.fx_model, FXCURS=["CLP","PEN","COP","MXN","ARS"];
+let FN, FB, SM, CSBY;
+function fxFactor(co){ const c=CCY[co]; return (FXM[c]||1)/(state.fx[c]||FXM[c]||1); }
+function applyFx(){
+  FN = DATA.fact_new.map(r=>{const f=fxFactor(r[0]); return [r[0],r[1],r[2],r[3], r[4], (r[5]||0)*f, (r[6]||0)*f, (r[7]||0)*f];});
+  FB = DATA.fact_base.map(r=>{const f=fxFactor(r[0]); return [r[0],r[1],r[2],r[3], (r[4]||0)*f, (r[5]||0)*f, (r[6]||0)*f, r[7]];});
+  SM = DATA.sm_rows.map(r=>{const f=fxFactor(r.country); return Object.assign({},r,{personnel:r.personnel*f,marketing:r.marketing*f,leadership:r.leadership*f,tools:r.tools*f,commission:r.commission*f,total:r.total*f,new_arr:(r.new_arr||0)*f});});
+  CSBY={}; for(const k in DATA.cs_by_country) CSBY[k]=DATA.cs_by_country[k]*fxFactor(k);
+}
+function updateFxNote(){ $("#fxNote").innerHTML="Model data converted at: "+FXCURS.map(c=>c+" "+FXM[c]).join(" · ")+". Editing a rate revalues that country's USD figures by model÷display. Per-country ratios (CLTV/CAC, NRR) are FX-invariant; absolute US$ and the blended mix move."; }
+
+function buildFilters(){
+  const c=$("#fCountry"); ["All",...DATA.lists.countries].forEach(x=>{const o=document.createElement("option");o.value=x;o.textContent=x;c.appendChild(o);});
+  c.value="All"; c.onchange=()=>{state.country=c.value;render();};
+  const mk=(host,setName,vals)=>{vals.forEach(v=>{const d=document.createElement("div");d.className="chip on";d.textContent=v;
+    d.onclick=()=>{const S=state[setName];S.has(v)?S.delete(v):S.add(v);d.classList.toggle("on");render();};host.appendChild(d);});};
+  mk($("#fSeg"),"seg",DATA.lists.segments);
+  mk($("#fChan"),"chan",DATA.lists.channels);
+  mk($("#fPlan"),"plan",DATA.lists.plans);
+  ["Personnel","Marketing","Leadership","Tools","Commission"].forEach(v=>{const d=document.createElement("div");d.className="chip cat on";d.textContent=v;
+    d.onclick=()=>{state.cat.has(v)?state.cat.delete(v):state.cat.add(v);d.classList.toggle("on");render();};$("#fCat").appendChild(d);});
+  $("#csToggle").onclick=()=>{state.cs=!state.cs;$("#csSwitch").classList.toggle("on",state.cs);$("#csTxt").textContent=state.cs?"Included":"Excluded";render();};
+  // FX editable inputs
+  const fxh=$("#fxInputs");
+  FXCURS.forEach(cur=>{const w=document.createElement("div");w.className="fxin";const s=document.createElement("span");s.textContent=cur;
+    const inp=document.createElement("input");inp.type="number";inp.step="0.0001";inp.min="0";inp.value=state.fx[cur];inp.dataset.cur=cur;
+    inp.oninput=()=>{const v=parseFloat(inp.value);if(v>0){state.fx[cur]=v;applyFx();render();updateFxNote();}};
+    w.appendChild(s);w.appendChild(inp);fxh.appendChild(w);});
+  updateFxNote();
+  $("#resetBtn").onclick=()=>{state.country="All";c.value="All";
+    state.seg=new Set(DATA.lists.segments);state.chan=new Set(DATA.lists.channels);state.plan=new Set(DATA.lists.plans);
+    state.cat=new Set(["Personnel","Marketing","Leadership","Tools","Commission"]);state.cs=true;$("#csSwitch").classList.add("on");$("#csTxt").textContent="Included";
+    state.fx=Object.assign({},DATA.fx_display);document.querySelectorAll("#fxInputs input").forEach(inp=>inp.value=state.fx[inp.dataset.cur]);
+    document.querySelectorAll(".chip").forEach(ch=>ch.classList.add("on"));applyFx();updateFxNote();render();};
+  const tc=$("#trendCountry"); ["All (consolidated)",...DATA.lists.countries].forEach(x=>{const o=document.createElement("option");o.value=x;o.textContent=x;tc.appendChild(o);});
+  tc.onchange=()=>renderTrends();
+}
+
+const inSet=(S,v)=> S.size===0 ? true : S.has(v);
+
+function unitEcon(){
+  const fn=FN.filter(r=>(state.country==="All"||r[0]===state.country)&&inSet(state.seg,r[1])&&inSet(state.chan,r[2])&&inSet(state.plan,r[3]));
+  const fb=FB.filter(r=>(state.country==="All"||r[0]===state.country)&&inSet(state.seg,r[1])&&inSet(state.chan,r[2])&&inSet(state.plan,r[3]));
+  const S=(a,i)=>a.reduce((t,r)=>t+(r[i]||0),0);
+  const sn=S(fn,4),sarr=S(fn,5),cacq=S(fn,6),ccs=S(fn,7);
+  const bs=S(fb,4),be=S(fb,5),bc=S(fb,6),bn=S(fb,7);
+  if(!sn||!bn||!bs) return {empty:true};
+  const cac=(cacq+(state.cs?ccs:0))/sn, netarr=be/bn, vbc=bc/bs, cltv=netarr/vbc;
+  return {empty:false,customers:sn,new_arr:sarr,cac,cltv,ratio:cltv/cac,payback:cac*12/netarr,churn:vbc,nrr:be/bs};
+}
+
+function smFiltered(){
+  const rows=SM.filter(r=>(state.country==="All"||r.country===state.country)&&inSet(state.chan,r.channel));
+  const cats=["Personnel","Marketing","Leadership","Tools","Commission"];
+  const tot={}; cats.forEach(c=>tot[c]=rows.reduce((t,r)=>t+(r[c.toLowerCase()]||0),0));
+  const shown={}; cats.forEach(c=> shown[c]= (state.cat.size===0||state.cat.has(c))?tot[c]:0);
+  const cust=rows.reduce((t,r)=>t+(r.customers||0),0);
+  const arr=rows.reduce((t,r)=>t+(r.new_arr||0),0);
+  let cs=0; if(state.cs){ for(const k in CSBY){ if(state.country==="All"||state.country===k) cs+=CSBY[k]; } }
+  const grand=cats.reduce((t,c)=>t+shown[c],0);
+  return {tot,shown,cust,arr,cs,grand,cats};
+}
+
+function classFor(metric,v){
+  if(metric==="ratio") return v>=3?"good":v>=1?"warn":"bad";
+  if(metric==="nrr") return v>=1?"good":v>=0.9?"warn":"bad";
+  if(metric==="churn") return v<=0.07?"good":v<=0.12?"warn":"bad";
+  if(metric==="payback") return v<=12?"good":v<=24?"warn":"bad";
+  return "";
+}
+function renderCards(){
+  const m=unitEcon(); const host=$("#kpiCards"); host.innerHTML="";
+  const card=(lbl,val,hint,bar)=>`<div class="kpi ${bar||''}"><div class="bar"></div><div class="lbl">${lbl}</div><div class="val">${val}</div><div class="hint">${hint||''}</div></div>`;
+  if(m.empty){ host.innerHTML=card("No data","—","No rows match this filter"); return; }
+  host.innerHTML=[
+    card("CLTV / CAC", m.ratio.toFixed(1)+"x","lifetime value ÷ acquisition cost",classFor("ratio",m.ratio)),
+    card("CAC", fmtUSD(m.cac),"cost to acquire one customer"),
+    card("CLTV", fmtUSD(m.cltv),"lifetime value per customer"),
+    card("CAC Payback", m.payback.toFixed(1)+" mo","months to recoup CAC",classFor("payback",m.payback)),
+    card("Churn value %", fmtPct(m.churn),"L12M lost ARR ÷ starting ARR",classFor("churn",m.churn)),
+    card("NRR %", fmtPct(m.nrr),"net revenue retention",classFor("nrr",m.nrr)),
+    card("New Customers", m.customers.toLocaleString(),"L12M new logos (matches filter)"),
+    card("New ARR", fmtUSD(m.new_arr),"L12M new ARR (matches filter)")
+  ].join("");
+}
+
+let catBar,catDonut,tCharts={};
+function renderSM(){
+  const s=smFiltered();
+  const labels=s.cats, vals=s.cats.map(c=>s.shown[c]);
+  if(catBar) catBar.destroy();
+  catBar=new Chart($("#catBar"),{type:"bar",data:{labels,datasets:[{data:vals,backgroundColor:labels.map(c=>COLORS[c])}]},
+    options:{indexAxis:"y",plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtUSD(c.parsed.x)}}},
+      scales:{x:{ticks:{callback:v=>"$"+(v/1000).toFixed(0)+"k"}}}}});
+  if(catDonut) catDonut.destroy();
+  catDonut=new Chart($("#catDonut"),{type:"doughnut",data:{labels,datasets:[{data:vals,backgroundColor:labels.map(c=>COLORS[c])}]},
+    options:{plugins:{legend:{position:"bottom",labels:{boxWidth:11,font:{size:11}}},tooltip:{callbacks:{label:c=>c.label+": "+fmtUSD(c.parsed)+" ("+(s.grand? (c.parsed/s.grand*100).toFixed(1):0)+"%)"}}}}});
+  const totWithCs=s.grand+s.cs;
+  $("#effCust").textContent= s.cust? fmtUSD(totWithCs/s.cust):"—";
+  $("#effArr").textContent= s.arr? "$"+(totWithCs/s.arr).toFixed(2):"—";
+  let html="<thead><tr><th>Category</th><th>Amount</th><th>% S&M</th></tr></thead><tbody>";
+  s.cats.forEach(c=>{const v=s.shown[c]; html+=`<tr><td>${c}</td><td>${fmtUSD(v)}</td><td>${s.grand?(v/s.grand*100).toFixed(1):0}%</td></tr>`;});
+  if(state.cs) html+=`<tr><td><i>CS (lever on)</i></td><td>${fmtUSD(s.cs)}</td><td>—</td></tr>`;
+  html+=`<tr class="tot"><td>Total S&M</td><td>${fmtUSD(totWithCs)}</td><td>100%</td></tr></tbody>`;
+  $("#catTable").innerHTML=html;
+}
+
+function renderHeat(){
+  const ch=["Inbound","Outbound","A&P"]; const co=DATA.lists.countries;
+  const M={}; SM.forEach(r=>M[r.country+"|"+r.channel]=r.total);
+  const all=SM.map(r=>r.total); const max=Math.max(...all);
+  const color=v=>{const t=max?v/max:0; const r=Math.round(232+(217-232)*t),g=Math.round(242+(116-242)*t),b=Math.round(208+(59-208)*t);return `rgb(${r},${g},${b})`;};
+  let html="<thead><tr><th>Country</th>"+ch.map(c=>`<th>${c}</th>`).join("")+"<th>Total</th></tr></thead><tbody>";
+  co.forEach(c=>{let row=`<tr><td>${c}</td>`;let t=0;ch.forEach(x=>{const v=M[c+"|"+x]||0;t+=v;row+=`<td class="c" style="background:${color(v)};color:${v>max*0.55?'#fff':'#0C2340'}">${fmtUSD(v)}</td>`;});row+=`<td><b>${fmtUSD(t)}</b></td></tr>`;html+=row;});
+  let tr=`<tr class="tot"><td>Total</td>`;ch.forEach(x=>{const s=co.reduce((a,c)=>a+(M[c+"|"+x]||0),0);tr+=`<td>${fmtUSD(s)}</td>`;});
+  tr+=`<td>${fmtUSD(all.reduce((a,b)=>a+b,0))}</td></tr>`;html+=tr+"</tbody>";
+  $("#heat").innerHTML=html;
+}
+
+function trendSeries(metric){
+  const scope=$("#trendCountry").value;
+  return HISTORY.map(h=>{
+    if(scope.startsWith("All")) return h[metric];
+    const pc=h.per_country&&h.per_country[scope]; return pc?pc[metric]:null;
+  });
+}
+function lineChart(id,metric,fmt,color){
+  if(tCharts[id]) tCharts[id].destroy();
+  const labels=HISTORY.map(h=>h.label||h.month);
+  const vals=trendSeries(metric);
+  tCharts[id]=new Chart($("#"+id),{type:"line",
+    data:{labels,datasets:[{data:vals,borderColor:color,backgroundColor:color+"22",fill:true,tension:.25,pointRadius:4,pointBackgroundColor:color,spanGaps:true}]},
+    options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.y)}}},
+      scales:{y:{ticks:{callback:fmt}}}}});
+}
+function renderTrends(){
+  lineChart("tCac","cac",v=>fmtUSD(v),"#022759");
+  lineChart("tRatio","ratio",v=>(+v).toFixed(1)+"x","#2E86C1");
+  lineChart("tNrr","nrr",v=>(v*100).toFixed(1)+"%","#1E9E5A");
+  lineChart("tChurn","churn",v=>(v*100).toFixed(1)+"%","#E08A1E");
+  $("#trendNote").innerHTML = HISTORY.length<2
+    ? `Showing <b>${HISTORY.length}</b> snapshot. Trend lines fill in as you add monthly files and re-run the rebuild.`
+    : `Showing <b>${HISTORY.length}</b> monthly snapshots (${HISTORY[0].label} → ${HISTORY[HISTORY.length-1].label}).`;
+}
+
+function render(){ renderCards(); renderSM(); renderTrends(); }
+
+$("#subline").textContent=DATA.period_label;
+$("#snapBadge").textContent="Snapshot: "+DATA.snapshot_month;
+$("#histBadge").textContent=(HISTORY.length)+" month"+(HISTORY.length>1?"s":"")+" of history";
+buildFilters(); applyFx(); renderHeat(); render();
+$("#footer").innerHTML=
+ `<b>Methodology.</b> Rolling L12M. Ratios computed as Σcost/Σcustomers AFTER filtering (correct at every aggregation, never an average of ratios). `+
+ `CAC = filtered S&M ÷ new customers; CLTV = (1/value-based churn) × installed-base ARR/customer (gross, no COGS haircut); Payback = CAC×12 ÷ ARR/cust; NRR = ending ÷ starting ARR. `+
+ `Figures shown at the editable Display FX (local currency per US$); the embedded model data was converted at the Model FX shown above. `+
+ `S&M reconciles to the CAC Build total ($3.94M excl CS at model FX). Personnel = sales+lead-gen payroll · Marketing = Pex + S&T, 45/45/10 · Leadership = shared (Option B) · Tools = software · Commission = A&P partner commission · CS = lever-controlled. `+
+ `<br><b>Caveats.</b> A&P deal volume likely undercounted (partner SQLs route via the LG team) → A&P CAC provisional. CLTV uncapped (1/churn) so Mid-Market/Corporate ratios run high. Internal denominators (model new-customers ~1,793; parent scorecard 1,976). `+
+ `<br>Rindegastos · A company in Visma · Internal figures. Generated ${DATA.generated}.`;
+</script>
+</body>
+</html>
